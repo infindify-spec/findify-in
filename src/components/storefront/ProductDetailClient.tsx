@@ -78,9 +78,9 @@ export function ProductDetailClient({ product, reviews }: ProductDetailClientPro
       {/* Product Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
-        {/* Left: Image Gallery (Ultra-tall portrait height & slim width) */}
+        {/* Left: Image Gallery (9:16 Ultra-tall vertical portrait) */}
         <div className="lg:col-span-4 w-full max-w-[360px] mx-auto lg:max-w-none space-y-3">
-          <div className="aspect-[2/3] bg-[#F8F7F3] border border-[#E5E2DC] rounded-[18px] overflow-hidden relative shadow-md">
+          <div className="aspect-[9/16] bg-[#F8F7F3] border border-[#E5E2DC] rounded-[18px] overflow-hidden relative shadow-md">
             <img src={selectedImage} alt={product.name} className="w-full h-full object-cover object-center" />
             {discountPercent > 0 && (
               <span className="absolute top-3 left-3 bg-[#1F5D42] text-white font-semibold text-[11px] px-2.5 py-1 rounded-[6px] shadow-sm">
@@ -94,7 +94,7 @@ export function ProductDetailClient({ product, reviews }: ProductDetailClientPro
                 <button
                   key={idx}
                   onClick={() => setSelectedImage(img)}
-                  className={`w-12 h-18 bg-[#F8F7F3] rounded-[8px] border-2 overflow-hidden shrink-0 transition-all ${selectedImage === img ? 'border-[#1F5D42] ring-1 ring-[#1F5D42]' : 'border-[#E5E2DC] opacity-60 hover:opacity-100'}`}
+                  className={`w-12 h-20 bg-[#F8F7F3] rounded-[8px] border-2 overflow-hidden shrink-0 transition-all ${selectedImage === img ? 'border-[#1F5D42] ring-1 ring-[#1F5D42]' : 'border-[#E5E2DC] opacity-60 hover:opacity-100'}`}
                 >
                   <img src={img} alt={`Thumbnail ${idx}`} className="w-full h-full object-cover" />
                 </button>
