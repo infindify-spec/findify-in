@@ -12,8 +12,8 @@ export async function POST(req: Request) {
     const payload = await req.json();
     const {
       name,
-      slug,
-      sku,
+      slug: rawSlug,
+      sku: rawSku,
       brand,
       categoryId,
       subcategoryId,
@@ -33,8 +33,29 @@ export async function POST(req: Request) {
       variants,
     } = payload;
 
-    if (!name || !sku || !slug || !categoryId || !mrp || !sellingPrice) {
+    if (!name || !categoryId || !mrp || !sellingPrice) {
       return NextResponse.json({ success: false, message: 'Missing required product fields' }, { status: 400 });
+    }
+
+    // Sanitize and generate unique slug if needed
+    let baseSlug = (rawSlug || name)
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-');
+    if (!baseSlug) baseSlug = `product-${Date.now()}`;
+
+    let slug = baseSlug;
+    const existingSlug = await prisma.product.findUnique({ where: { slug } });
+    if (existingSlug) {
+      slug = `${baseSlug}-${Math.floor(100 + Math.random() * 900)}`;
+    }
+
+    // Sanitize and generate unique SKU if needed
+    let sku = rawSku?.trim() || `SKU-${Date.now()}`;
+    const existingSku = await prisma.product.findUnique({ where: { sku } });
+    if (existingSku) {
+      sku = `${sku}-${Math.floor(100 + Math.random() * 900)}`;
     }
 
     const newProduct = await prisma.product.create({
@@ -50,7 +71,7 @@ export async function POST(req: Request) {
         costPrice: costPrice ? Number(costPrice) : null,
         stock: Number(stock || 0),
         lowStockThreshold: Number(lowStockThreshold || 5),
-        description,
+        description: description || '',
         shortDescription: shortDescription || null,
         specifications: specifications ? JSON.stringify(specifications) : null,
         features: features ? JSON.stringify(features) : null,
@@ -61,10 +82,10 @@ export async function POST(req: Request) {
           create: (images || []).map((url: string, idx: number) => ({ url, order: idx })),
         },
         variants: {
-          create: (variants || []).map((v: any) => ({
-            sku: v.sku,
-            name: v.name,
-            price: Number(v.price),
+          create: (variants || []).map((v: any, idx: number) => ({
+            sku: v.sku || `${sku}-V${idx + 1}`,
+            name: v.name || `Variant ${idx + 1}`,
+            price: Number(v.price || sellingPrice),
             stock: Number(v.stock || 0),
             optionColor: v.optionColor || null,
           })),
@@ -82,16 +103,20 @@ export async function POST(req: Request) {
       },
     });
 
-    // Activity Log
-    await prisma.adminActivityLog.create({
-      data: {
-        adminUserId: session.id,
-        action: 'PRODUCT_CREATED',
-        entity: 'Product',
-        entityId: newProduct.id,
-        metadata: JSON.stringify({ name: newProduct.name, sku: newProduct.sku }),
-      },
-    });
+    // Safely attempt Activity Logging without blocking product creation
+    try {
+      await prisma.adminActivityLog.create({
+        data: {
+          adminUserId: session.id,
+          action: 'PRODUCT_CREATED',
+          entity: 'Product',
+          entityId: newProduct.id,
+          metadata: JSON.stringify({ name: newProduct.name, sku: newProduct.sku }),
+        },
+      });
+    } catch (logErr) {
+      console.warn('Failed to write admin activity log:', logErr);
+    }
 
     return NextResponse.json({ success: true, product: newProduct });
   } catch (error: any) {
@@ -99,3 +124,4 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: false, message: error.message || 'Server error creating product' }, { status: 500 });
   }
 }
+

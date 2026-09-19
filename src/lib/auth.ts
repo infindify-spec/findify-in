@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
 import { Role } from '@prisma/client';
+import { prisma } from './prisma';
 
 const JWT_SECRET = process.env.AUTH_SECRET || 'findify_production_super_secret_jwt_key_987654321_in';
 
@@ -48,5 +49,24 @@ export async function getAdminSession(): Promise<AdminPayload | null> {
   const token = cookieStore.get('admin_token')?.value;
   if (!token) return null;
   const decoded = verifyToken<AdminPayload>(token);
-  return decoded && decoded.type === 'ADMIN' ? decoded : null;
+  if (!decoded || decoded.type !== 'ADMIN') return null;
+
+  try {
+    const admin = await prisma.adminUser.findFirst({
+      where: {
+        OR: [{ id: decoded.id }, { email: decoded.email }],
+      },
+    });
+    if (!admin || !admin.isActive) return null;
+    return {
+      id: admin.id,
+      email: admin.email,
+      name: admin.name,
+      role: admin.role,
+      type: 'ADMIN',
+    };
+  } catch {
+    return decoded;
+  }
 }
+
