@@ -65,7 +65,8 @@ export async function POST(
     return NextResponse.json({ success: false, message: 'Invalid action' }, { status: 404 });
   } catch (error) {
     console.error('Admin auth error:', error);
-    return NextResponse.json({ success: false, message: 'Server auth error' }, { status: 500 });
+    const errMessage = error instanceof Error ? error.message : 'Server auth error';
+    return NextResponse.json({ success: false, message: errMessage }, { status: 500 });
   }
 }
 
