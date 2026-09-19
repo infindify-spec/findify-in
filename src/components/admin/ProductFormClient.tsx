@@ -76,24 +76,80 @@ export function ProductFormClient({ categories, initialProduct }: ProductFormCli
     }));
   };
 
+  const compressImage = (file: File): Promise<File> => {
+    return new Promise((resolve) => {
+      if (!file.type.startsWith('image/')) return resolve(file);
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (e) => {
+        const img = new Image();
+        img.src = e.target?.result as string;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const MAX_WIDTH = 1200;
+          const MAX_HEIGHT = 1200;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height = Math.round((height * MAX_WIDTH) / width);
+              width = MAX_WIDTH;
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width = Math.round((width * MAX_HEIGHT) / height);
+              height = MAX_HEIGHT;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+
+          canvas.toBlob(
+            (blob) => {
+              if (blob) {
+                const compressedFile = new File([blob], file.name.replace(/\.[^/.]+$/, '') + '.webp', {
+                  type: 'image/webp',
+                  lastModified: Date.now(),
+                });
+                resolve(compressedFile);
+              } else {
+                resolve(file);
+              }
+            },
+            'image/webp',
+            0.82
+          );
+        };
+        img.onerror = () => resolve(file);
+      };
+      reader.onerror = () => resolve(file);
+    });
+  };
+
   const uploadFiles = async (files: FileList | File[]) => {
     const fileArray = Array.from(files);
     setIsUploading(true);
     let uploaded = 0;
-    for (const file of fileArray) {
-      const fd = new FormData();
-      fd.append('file', file);
+    for (const rawFile of fileArray) {
       try {
+        const file = await compressImage(rawFile);
+        const fd = new FormData();
+        fd.append('file', file);
+
         const res = await fetch('/api/admin/upload', { method: 'POST', body: fd });
         const data = await res.json();
         if (data.success) {
           setImages((prev) => [...prev, data.url]);
           uploaded++;
         } else {
-          toast.error(data.message || `Failed to upload ${file.name}`);
+          toast.error(data.message || `Failed to upload ${rawFile.name}`);
         }
       } catch {
-        toast.error(`Upload failed for ${file.name}`);
+        toast.error(`Upload failed for ${rawFile.name}`);
       }
     }
     setIsUploading(false);
@@ -158,7 +214,13 @@ export function ProductFormClient({ categories, initialProduct }: ProductFormCli
         }),
       });
 
-      const data = await res.json();
+      let data;
+      try {
+        data = await res.json();
+      } catch {
+        throw new Error(res.status === 413 ? 'Image size too large. Please use smaller images or image URLs.' : `Server error (${res.status})`);
+      }
+
       if (data.success) {
         toast.success(isEdit ? 'Product updated!' : 'Product created!');
         router.push('/admin/products');
@@ -166,8 +228,9 @@ export function ProductFormClient({ categories, initialProduct }: ProductFormCli
       } else {
         toast.error(data.message || 'Failed to save product');
       }
-    } catch {
-      toast.error('Network error saving product');
+    } catch (err: any) {
+      console.error('Product submit error:', err);
+      toast.error(err.message || 'Network error saving product');
     } finally {
       setIsSubmitting(false);
     }
