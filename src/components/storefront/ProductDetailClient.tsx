@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Star, ShoppingBag, MapPin, Check, Zap } from 'lucide-react';
+import { Star, ShoppingBag, MapPin, Check, Zap, ChevronLeft, ChevronRight } from 'lucide-react';
 import { formatINR, calculateDiscount } from '@/lib/utils';
 import { useCart } from './CartContext';
 import { pincodeRegex } from '@/lib/validation';
@@ -32,16 +32,51 @@ export function ProductDetailClient({ product, reviews }: ProductDetailClientPro
   const router = useRouter();
   const { addToCart } = useCart();
 
-  const [selectedImage, setSelectedImage] = useState(product.images[0] || '');
+  const images = product.images && product.images.length > 0 ? product.images : ['/logo.jpg'];
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [selectedVariant, setSelectedVariant] = useState(product.variants[0] || null);
   const [quantity, setQuantity] = useState(1);
   const [pincode, setPincode] = useState('');
   const [pincodeStatus, setPincodeStatus] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'desc' | 'specs' | 'shipping' | 'reviews'>('desc');
 
+  // Touch Swipe Gesture State
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+
+  const selectedImage = images[selectedImageIndex] || images[0];
   const currentPrice = selectedVariant ? selectedVariant.price : product.sellingPrice;
   const currentStock = selectedVariant ? selectedVariant.stock : product.stock;
   const discountPercent = calculateDiscount(product.mrp, currentPrice);
+
+  const handlePrevImage = () => {
+    setSelectedImageIndex((prev) => (prev - 1 + images.length) % images.length);
+  };
+
+  const handleNextImage = () => {
+    setSelectedImageIndex((prev) => (prev + 1) % images.length);
+  };
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > 40;
+    const isRightSwipe = distance < -40;
+    if (isLeftSwipe) {
+      handleNextImage();
+    } else if (isRightSwipe) {
+      handlePrevImage();
+    }
+  };
 
   const handlePincodeCheck = (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,23 +113,69 @@ export function ProductDetailClient({ product, reviews }: ProductDetailClientPro
       {/* Product Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
-        {/* Left: Image Gallery (9:16 Ultra-tall vertical portrait) */}
-        <div className="lg:col-span-4 w-full max-w-[360px] mx-auto lg:max-w-none space-y-3">
-          <div className="aspect-[9/16] bg-[#F8F7F3] border border-[#E5E2DC] rounded-[18px] overflow-hidden relative shadow-md">
-            <img src={selectedImage} alt={product.name} className="w-full h-full object-cover object-center" />
+        {/* Left: Image Gallery (Swipable + Increased Width) */}
+        <div className="lg:col-span-5 w-full max-w-[460px] mx-auto lg:max-w-none space-y-3 select-none">
+          <div
+            className="aspect-[3/4] bg-[#F8F7F3] border border-[#E5E2DC] rounded-[18px] overflow-hidden relative shadow-md group touch-pan-y"
+            onTouchStart={onTouchStart}
+            onTouchMove={onTouchMove}
+            onTouchEnd={onTouchEnd}
+          >
+            <img
+              src={selectedImage}
+              alt={product.name}
+              className="w-full h-full object-cover object-center transition-all duration-300"
+            />
+
             {discountPercent > 0 && (
-              <span className="absolute top-3 left-3 bg-[#1F5D42] text-white font-semibold text-[11px] px-2.5 py-1 rounded-[6px] shadow-sm">
+              <span className="absolute top-3 left-3 bg-[#1F5D42] text-white font-semibold text-[11px] px-2.5 py-1 rounded-[6px] shadow-sm z-10">
                 -{discountPercent}% OFF
               </span>
             )}
+
+            {/* Left / Right Swipe Arrows */}
+            {images.length > 1 && (
+              <>
+                <button
+                  type="button"
+                  onClick={handlePrevImage}
+                  className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-[#171717] p-2 rounded-full shadow-md backdrop-blur-sm transition-all opacity-80 group-hover:opacity-100 z-10"
+                  aria-label="Previous image"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={handleNextImage}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-[#171717] p-2 rounded-full shadow-md backdrop-blur-sm transition-all opacity-80 group-hover:opacity-100 z-10"
+                  aria-label="Next image"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+
+                {/* Swipe Dot Indicators */}
+                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 bg-black/40 backdrop-blur-md px-3 py-1 rounded-full z-10">
+                  {images.map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setSelectedImageIndex(idx)}
+                      className={`h-2 rounded-full transition-all ${idx === selectedImageIndex ? 'w-4 bg-white' : 'w-2 bg-white/50'}`}
+                      aria-label={`Go to slide ${idx + 1}`}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
           </div>
-          {product.images.length > 1 && (
+
+          {/* Thumbnails */}
+          {images.length > 1 && (
             <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-              {product.images.map((img, idx) => (
+              {images.map((img, idx) => (
                 <button
                   key={idx}
-                  onClick={() => setSelectedImage(img)}
-                  className={`w-12 h-20 bg-[#F8F7F3] rounded-[8px] border-2 overflow-hidden shrink-0 transition-all ${selectedImage === img ? 'border-[#1F5D42] ring-1 ring-[#1F5D42]' : 'border-[#E5E2DC] opacity-60 hover:opacity-100'}`}
+                  onClick={() => setSelectedImageIndex(idx)}
+                  className={`w-14 h-18 bg-[#F8F7F3] rounded-[10px] border-2 overflow-hidden shrink-0 transition-all ${selectedImageIndex === idx ? 'border-[#1F5D42] ring-2 ring-[#1F5D42]/30 scale-105' : 'border-[#E5E2DC] opacity-60 hover:opacity-100'}`}
                 >
                   <img src={img} alt={`Thumbnail ${idx}`} className="w-full h-full object-cover" />
                 </button>
@@ -104,7 +185,7 @@ export function ProductDetailClient({ product, reviews }: ProductDetailClientPro
         </div>
 
         {/* Right: Purchase Info */}
-        <div className="lg:col-span-8 space-y-4">
+        <div className="lg:col-span-7 space-y-4">
 
           {/* Brand + Title */}
           <div>
