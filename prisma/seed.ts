@@ -298,6 +298,8 @@ async function main() {
       ]),
       images: [
         '/uploads/products/solar-sensor-wall-light.png',
+        '/uploads/products/solar-sensor-wall-light-glow.jpg',
+        '/uploads/products/solar-sensor-wall-light-waterproof.jpg',
       ],
       variants: [],
     },

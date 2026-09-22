@@ -84,15 +84,15 @@ export async function GET() {
       });
 
       await prisma.productImage.deleteMany({ where: { productId: updated.id } });
-      await prisma.productImage.create({
-        data: {
-          productId: updated.id,
-          url: '/uploads/products/solar-sensor-wall-light.png',
-          order: 0,
-        },
+      await prisma.productImage.createMany({
+        data: [
+          { productId: updated.id, url: '/uploads/products/solar-sensor-wall-light.png', order: 0 },
+          { productId: updated.id, url: '/uploads/products/solar-sensor-wall-light-glow.jpg', order: 1 },
+          { productId: updated.id, url: '/uploads/products/solar-sensor-wall-light-waterproof.jpg', order: 2 },
+        ],
       });
 
-      return NextResponse.json({ success: true, message: 'Updated existing product', product: updated });
+      return NextResponse.json({ success: true, message: 'Updated existing product with gallery images', product: updated });
     }
 
     const product = await prisma.product.create({
@@ -158,7 +158,9 @@ export async function GET() {
         ]),
         images: {
           create: [
-            { url: '/uploads/products/solar-sensor-wall-light.png', order: 0 }
+            { url: '/uploads/products/solar-sensor-wall-light.png', order: 0 },
+            { url: '/uploads/products/solar-sensor-wall-light-glow.jpg', order: 1 },
+            { url: '/uploads/products/solar-sensor-wall-light-waterproof.jpg', order: 2 },
           ],
         },
         reviews: {
