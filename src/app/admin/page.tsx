@@ -1,6 +1,8 @@
 import React from 'react';
+import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { formatINR } from '@/lib/utils';
+import { getAdminSession } from '@/lib/auth';
 import {
   TrendingUp,
   ShoppingBag,
@@ -16,6 +18,11 @@ import { AdminCharts } from '@/components/admin/AdminCharts';
 export const revalidate = 0;
 
 export default async function AdminDashboardPage() {
+  const session = await getAdminSession();
+  if (!session) {
+    redirect('/admin/login');
+  }
+
   // Compute REAL Database Statistics
   const totalSalesAggregate = await prisma.order.aggregate({
     _sum: { totalAmount: true },

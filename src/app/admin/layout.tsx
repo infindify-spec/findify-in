@@ -1,6 +1,4 @@
 import React from 'react';
-import { redirect } from 'next/navigation';
-import { headers } from 'next/headers';
 import { getAdminSession } from '@/lib/auth';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
 
@@ -9,20 +7,11 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const headersList = await headers();
-  const pathname = headersList.get('x-pathname') || headersList.get('x-invoke-path') || '';
-
-  // Skip auth check for the login page — let it render freely
-  const isLoginPage = pathname.includes('/admin/login');
-  if (isLoginPage) {
-    return <>{children}</>;
-  }
-
   const session = await getAdminSession();
 
-  // If accessing protected admin page without session, redirect to login
+  // If no session exists, render children directly (allows /admin/login to render without redirect loops)
   if (!session) {
-    redirect('/admin/login');
+    return <>{children}</>;
   }
 
   return (
@@ -34,3 +23,4 @@ export default async function AdminLayout({
     </div>
   );
 }
+
