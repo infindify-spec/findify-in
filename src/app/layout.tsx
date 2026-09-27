@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Toaster } from 'sonner';
 import { CartProvider } from '@/components/storefront/CartContext';
+import { MetaPixelScript } from '@/components/storefront/MetaPixelScript';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -30,6 +31,7 @@ export default function RootLayout({
         />
       </head>
       <body className="bg-white text-[#171717] min-h-screen flex flex-col antialiased">
+        <MetaPixelScript pixelId="952020320734133" />
         <CartProvider>
           {children}
           <Toaster position="top-right" richColors />
