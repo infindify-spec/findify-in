@@ -22,11 +22,11 @@ export default function CartPage() {
   const [couponInput, setCouponInput] = useState('');
   const [isValidatingCoupon, setIsValidatingCoupon] = useState(false);
 
-  const freeShippingThreshold = 999;
-  const standardShippingFee = 79;
-  const isFreeShipping = subtotal >= freeShippingThreshold;
-  const remainingForFreeShipping = Math.max(0, freeShippingThreshold - subtotal);
-  const finalShippingFee = isFreeShipping || cart.length === 0 ? 0 : standardShippingFee;
+  const freeShippingThreshold = 0;
+  const standardShippingFee = 0;
+  const isFreeShipping = true;
+  const remainingForFreeShipping = 0;
+  const finalShippingFee = 0;
 
   const couponDiscount = appliedCoupon ? appliedCoupon.discount : 0;
   const finalTotal = Math.max(0, subtotal - couponDiscount + finalShippingFee);

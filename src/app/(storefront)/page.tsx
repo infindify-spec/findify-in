@@ -115,7 +115,7 @@ export default async function HomePage() {
                 </div>
                 <div>
                   <p className="text-[11px] font-semibold text-[#171717] leading-none">Free Shipping</p>
-                  <p className="text-[10px] text-[#999999] mt-0.5">On orders above ₹999</p>
+                  <p className="text-[10px] text-[#1F5D42] font-semibold mt-0.5">100% Free on all orders</p>
                 </div>
               </div>
             </ScrollReveal>
@@ -181,7 +181,7 @@ export default async function HomePage() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
             { Icon: ShieldCheck, title: 'Quality Products', sub: 'Verified & quality-checked' },
-            { Icon: Truck, title: 'Pan-India Delivery', sub: 'Free above ₹999' },
+            { Icon: Truck, title: 'Pan-India Delivery', sub: '100% Free on all orders' },
             { Icon: RotateCcw, title: 'Easy Returns', sub: '7-day replacement' },
             { Icon: Headphones, title: 'Support', sub: 'Mon–Sat, 10AM–7PM' },
           ].map(({ Icon, title, sub }, idx) => (

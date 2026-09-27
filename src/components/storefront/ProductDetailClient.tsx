@@ -216,7 +216,7 @@ export function ProductDetailClient({ product, reviews }: ProductDetailClientPro
                 </span>
               )}
             </div>
-            <p className="text-[10.5px] text-[#999999]">Incl. of all taxes. Free shipping on prepaid orders ₹999+</p>
+            <p className="text-[10.5px] text-[#1F5D42] font-medium">Incl. of all taxes. ⚡ FREE Delivery on All Orders</p>
           </div>
 
           {/* Variants */}

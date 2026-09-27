@@ -42,7 +42,7 @@ export function Header() {
       
       {/* Micro Announcement Bar */}
       <div className="bg-[#171717] text-white text-[11px] font-normal text-center py-1 px-4 tracking-wide">
-        Free India Delivery on orders over ₹999 &nbsp;·&nbsp; Use code <span className="font-semibold text-[#7FC9A1]">FIRST10</span> for 10% OFF
+        ⚡ 100% FREE Express Delivery on All Orders Across India &nbsp;·&nbsp; Use code <span className="font-semibold text-[#7FC9A1]">FIRST10</span> for 10% OFF
       </div>
 
       {/* Main Slim Navbar (60px) */}

@@ -5,7 +5,7 @@ import { Zap, ShieldCheck, Truck, RotateCcw, Award, Sparkles } from 'lucide-reac
 
 export function MarqueeTicker() {
   const items = [
-    { icon: Zap, text: 'FREE Pan-India Shipping on Prepaid Orders > ₹999' },
+    { icon: Zap, text: 'FREE Express Pan-India Shipping on ALL Orders' },
     { icon: Sparkles, text: 'Use Code FIRST10 for Extra 10% OFF' },
     { icon: ShieldCheck, text: '100% Genuine Certified Quality Guarantee' },
     { icon: Truck, text: 'Dispatched within 24 Hours · Live Courier Tracking' },

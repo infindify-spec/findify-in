@@ -11,7 +11,7 @@ export function Footer() {
         <div className="container-site">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
-              { Icon: Truck, title: 'Pan-India Delivery', sub: 'Free on orders above ₹999' },
+              { Icon: Truck, title: 'Pan-India Delivery', sub: '100% Free on all orders' },
               { Icon: ShieldCheck, title: '100% Genuine Products', sub: 'Verified & quality-checked' },
               { Icon: RotateCcw, title: '7-Day Replacement', sub: 'Easy hassle-free returns' },
               { Icon: Headphones, title: 'Dedicated Support', sub: 'Mon–Sat, 10 AM – 7 PM IST' },

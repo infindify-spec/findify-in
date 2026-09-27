@@ -31,12 +31,12 @@ export default function CheckoutPage() {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Pricing calculations
-  const freeShippingThreshold = 999;
-  const standardShippingFee = 79;
+  // Pricing calculations (100% FREE Delivery on all orders)
+  const freeShippingThreshold = 0;
+  const standardShippingFee = 0;
   const codFee = paymentMethod === 'COD' ? 49 : 0;
-  const isFreeShipping = subtotal >= freeShippingThreshold;
-  const shippingFee = isFreeShipping ? 0 : standardShippingFee;
+  const isFreeShipping = true;
+  const shippingFee = 0;
 
   const couponDiscount = appliedCoupon ? appliedCoupon.discount : 0;
   const finalTotal = Math.max(0, subtotal - couponDiscount + shippingFee + codFee);

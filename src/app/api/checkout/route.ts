@@ -90,11 +90,9 @@ export async function POST(req: Request) {
       }
     }
 
-    // 4. Shipping & Fees Calculation
+    // 4. Shipping & Fees Calculation (100% FREE Delivery on all orders)
     const settings = await prisma.siteSettings.findUnique({ where: { id: 'default' } });
-    const freeShippingThreshold = settings?.freeShippingThreshold ?? 999;
-    const isFreeShipping = subtotal >= freeShippingThreshold;
-    const shippingFee = isFreeShipping ? 0 : (settings?.standardShippingFee ?? 79);
+    const shippingFee = 0;
     const codFee = paymentMethod === 'COD' ? (settings?.codCharge ?? 49) : 0;
 
     const totalAmount = Math.max(0, subtotal - discount + shippingFee + codFee);
