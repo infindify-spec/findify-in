@@ -454,19 +454,19 @@ export function ProductFormClient({ categories, initialProduct }: ProductFormCli
 
             {/* Image Previews */}
             {images.length > 0 && (
-              <div className="grid grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                 {images.map((img, idx) => (
-                  <div key={idx} className="relative aspect-square border border-[#E5DED2] rounded-xl overflow-hidden group bg-[#F8F7F3]">
-                    <img src={img} alt={`Product image ${idx + 1}`} className="w-full h-full object-cover" />
+                  <div key={idx} className="relative aspect-square border border-[#E5DED2] rounded-xl overflow-hidden group bg-white p-2 shadow-xs">
+                    <img src={img} alt={`Product image ${idx + 1}`} className="w-full h-full object-contain" />
                     <button
                       type="button"
                       onClick={() => handleRemoveImage(idx)}
-                      className="absolute top-1.5 right-1.5 bg-white/90 text-red-600 p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-sm hover:bg-red-600 hover:text-white"
+                      className="absolute top-1.5 right-1.5 bg-white/95 text-red-600 p-1.5 rounded-full opacity-90 sm:opacity-0 group-hover:opacity-100 transition-opacity shadow-md hover:bg-red-600 hover:text-white"
                     >
-                      <X className="w-3 h-3" />
+                      <X className="w-3.5 h-3.5" />
                     </button>
                     {idx === 0 && (
-                      <span className="absolute bottom-1.5 left-1.5 bg-[#1F5D42] text-white text-[9px] font-bold px-1.5 py-0.5 rounded">
+                      <span className="absolute bottom-1.5 left-1.5 bg-[#1F5D42] text-white text-[9px] font-bold px-2 py-0.5 rounded-md shadow-xs">
                         COVER
                       </span>
                     )}

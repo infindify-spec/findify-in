@@ -46,11 +46,11 @@ export function ProductCard({
     <div className="group bg-white border border-[#E5E2DC] rounded-[14px] overflow-hidden hover:border-[#1F5D42] hover:-translate-y-1.5 hover:shadow-[0_12px_28px_rgba(31,93,66,0.12)] transition-all duration-300 flex flex-col">
 
       {/* Image */}
-      <Link href={`/products/${slug}`} className="block relative aspect-square bg-[#F8F7F3] overflow-hidden">
+      <Link href={`/products/${slug}`} className="block relative aspect-square bg-[#F8F7F3] overflow-hidden p-2">
         <img
           src={image}
           alt={name}
-          className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out"
+          className="w-full h-full object-contain object-center group-hover:scale-105 transition-transform duration-500 ease-out"
         />
         {/* Badges — discount top-left, label top-right */}
         {discountPercent > 0 && (

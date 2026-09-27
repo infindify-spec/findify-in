@@ -113,10 +113,10 @@ export function ProductDetailClient({ product, reviews }: ProductDetailClientPro
       {/* Product Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
-        {/* Left: Image Gallery (Swipable + Increased Width) */}
-        <div className="lg:col-span-5 w-full max-w-[460px] mx-auto lg:max-w-none space-y-3 select-none">
+        {/* Left: Image Gallery (Expanded Photo Box + Fit-Contain Image) */}
+        <div className="lg:col-span-6 w-full space-y-4 select-none">
           <div
-            className="aspect-[3/4] bg-[#F8F7F3] border border-[#E5E2DC] rounded-[18px] overflow-hidden relative shadow-md group touch-pan-y"
+            className="w-full aspect-square sm:aspect-[4/3] lg:aspect-square bg-white border border-[#E5E2DC] rounded-[20px] overflow-hidden relative shadow-md group touch-pan-y flex items-center justify-center p-3 sm:p-5"
             onTouchStart={onTouchStart}
             onTouchMove={onTouchMove}
             onTouchEnd={onTouchEnd}
@@ -124,11 +124,11 @@ export function ProductDetailClient({ product, reviews }: ProductDetailClientPro
             <img
               src={selectedImage}
               alt={product.name}
-              className="w-full h-full object-cover object-center transition-all duration-300"
+              className="w-full h-full object-contain object-center transition-all duration-300"
             />
 
             {discountPercent > 0 && (
-              <span className="absolute top-3 left-3 bg-[#1F5D42] text-white font-semibold text-[11px] px-2.5 py-1 rounded-[6px] shadow-sm z-10">
+              <span className="absolute top-4 left-4 bg-[#1F5D42] text-white font-semibold text-[12px] px-3 py-1 rounded-[8px] shadow-sm z-10">
                 -{discountPercent}% OFF
               </span>
             )}
@@ -139,27 +139,27 @@ export function ProductDetailClient({ product, reviews }: ProductDetailClientPro
                 <button
                   type="button"
                   onClick={handlePrevImage}
-                  className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-[#171717] p-2 rounded-full shadow-md backdrop-blur-sm transition-all opacity-80 group-hover:opacity-100 z-10"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-[#171717] p-2.5 rounded-full shadow-lg backdrop-blur-sm transition-all opacity-80 group-hover:opacity-100 z-10 cursor-pointer"
                   aria-label="Previous image"
                 >
-                  <ChevronLeft className="w-5 h-5" />
+                  <ChevronLeft className="w-6 h-6" />
                 </button>
                 <button
                   type="button"
                   onClick={handleNextImage}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-[#171717] p-2 rounded-full shadow-md backdrop-blur-sm transition-all opacity-80 group-hover:opacity-100 z-10"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-[#171717] p-2.5 rounded-full shadow-lg backdrop-blur-sm transition-all opacity-80 group-hover:opacity-100 z-10 cursor-pointer"
                   aria-label="Next image"
                 >
-                  <ChevronRight className="w-5 h-5" />
+                  <ChevronRight className="w-6 h-6" />
                 </button>
 
                 {/* Swipe Dot Indicators */}
-                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 bg-black/40 backdrop-blur-md px-3 py-1 rounded-full z-10">
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5 bg-black/50 backdrop-blur-md px-3.5 py-1.5 rounded-full z-10">
                   {images.map((_, idx) => (
                     <button
                       key={idx}
                       onClick={() => setSelectedImageIndex(idx)}
-                      className={`h-2 rounded-full transition-all ${idx === selectedImageIndex ? 'w-4 bg-white' : 'w-2 bg-white/50'}`}
+                      className={`h-2 rounded-full transition-all ${idx === selectedImageIndex ? 'w-5 bg-white' : 'w-2 bg-white/50'}`}
                       aria-label={`Go to slide ${idx + 1}`}
                     />
                   ))}
@@ -170,14 +170,14 @@ export function ProductDetailClient({ product, reviews }: ProductDetailClientPro
 
           {/* Thumbnails */}
           {images.length > 1 && (
-            <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+            <div className="flex items-center gap-2.5 overflow-x-auto pb-2 scrollbar-none">
               {images.map((img, idx) => (
                 <button
                   key={idx}
                   onClick={() => setSelectedImageIndex(idx)}
-                  className={`w-14 h-18 bg-[#F8F7F3] rounded-[10px] border-2 overflow-hidden shrink-0 transition-all ${selectedImageIndex === idx ? 'border-[#1F5D42] ring-2 ring-[#1F5D42]/30 scale-105' : 'border-[#E5E2DC] opacity-60 hover:opacity-100'}`}
+                  className={`w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-[12px] border-2 overflow-hidden shrink-0 transition-all p-1 ${selectedImageIndex === idx ? 'border-[#1F5D42] ring-2 ring-[#1F5D42]/30 scale-105 shadow-sm' : 'border-[#E5E2DC] opacity-70 hover:opacity-100'}`}
                 >
-                  <img src={img} alt={`Thumbnail ${idx}`} className="w-full h-full object-cover" />
+                  <img src={img} alt={`Thumbnail ${idx}`} className="w-full h-full object-contain" />
                 </button>
               ))}
             </div>
