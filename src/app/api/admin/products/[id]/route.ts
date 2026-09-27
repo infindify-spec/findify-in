@@ -27,14 +27,33 @@ export async function PUT(
       where: { id },
       data: {
         name: payload.name,
+        brand: payload.brand || 'FINDIFY.IN',
+        categoryId: payload.categoryId,
+        subcategoryId: payload.subcategoryId || null,
         mrp: Number(payload.mrp),
         sellingPrice: Number(payload.sellingPrice),
         costPrice: payload.costPrice ? Number(payload.costPrice) : null,
         stock: Number(payload.stock),
+        lowStockThreshold: payload.lowStockThreshold ? Number(payload.lowStockThreshold) : 5,
         description: payload.description,
+        shortDescription: payload.shortDescription || null,
         status: payload.status,
       },
     });
+
+    // Replace Product Images with new uploaded images array if provided
+    if (Array.isArray(payload.images)) {
+      await prisma.productImage.deleteMany({ where: { productId: id } });
+      if (payload.images.length > 0) {
+        await prisma.productImage.createMany({
+          data: payload.images.map((url: string, idx: number) => ({
+            productId: id,
+            url,
+            order: idx,
+          })),
+        });
+      }
+    }
 
     if (stockDelta !== 0) {
       await prisma.inventoryMovement.create({
