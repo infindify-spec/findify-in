@@ -20,20 +20,28 @@ function sha256(data: string): string {
  */
 export async function trackMetaCAPI(payload: MetaEventPayload) {
   try {
-    const settings = await prisma.siteSettings.findUnique({ where: { id: 'default' } });
-    const pixelId = settings?.metaDatasetId || settings?.metaPixelId || process.env.META_DATASET_ID || process.env.META_PIXEL_ID;
+    let settings = null;
+    try {
+      settings = await prisma.siteSettings.findUnique({ where: { id: 'default' } });
+    } catch {
+      // Graceful fallback to process.env when database is initializing or unavailable
+    }
+
+    const pixelId = settings?.metaDatasetId || settings?.metaPixelId || process.env.META_DATASET_ID || process.env.META_PIXEL_ID || '952020320734133';
     const accessToken = settings?.metaAccessToken || process.env.META_ACCESS_TOKEN;
     const isEnabled = settings ? settings.metaEnabled : true;
 
     if (!isEnabled || !pixelId || !accessToken) {
-      // Store event locally for verification/audit screen
-      await prisma.analyticsEvent.create({
-        data: {
-          eventName: payload.eventName,
-          eventData: JSON.stringify({ ...payload, status: 'NOT_CONFIGURED' }),
-          source: 'SERVER',
-        },
-      });
+      // Store event locally for verification/audit screen (non-blocking)
+      try {
+        await prisma.analyticsEvent.create({
+          data: {
+            eventName: payload.eventName,
+            eventData: JSON.stringify({ ...payload, status: 'NOT_CONFIGURED' }),
+            source: 'SERVER',
+          },
+        });
+      } catch {}
       return;
     }
 
@@ -82,19 +90,23 @@ export async function trackMetaCAPI(payload: MetaEventPayload) {
 
     const resJson = await response.json();
 
-    // Record server event in database for audit logger UI
-    await prisma.analyticsEvent.create({
-      data: {
-        eventName: payload.eventName,
-        eventData: JSON.stringify({
-          eventId: payload.eventId,
-          customData: payload.customData,
-          status: response.ok ? 'DISPATCHED_LIVE' : 'FAILED',
-          metaResponse: resJson,
-        }),
-        source: 'SERVER',
-      },
-    });
+    // Record server event in database for audit logger UI (non-blocking)
+    try {
+      await prisma.analyticsEvent.create({
+        data: {
+          eventName: payload.eventName,
+          eventData: JSON.stringify({
+            eventId: payload.eventId,
+            customData: payload.customData,
+            status: response.ok ? 'DISPATCHED_LIVE' : 'FAILED',
+            metaResponse: resJson,
+          }),
+          source: 'SERVER',
+        },
+      });
+    } catch {
+      // Ignore database log errors in serverless/offline environments
+    }
 
     if (!response.ok) {
       console.error('Meta CAPI API Response Error:', resJson);
